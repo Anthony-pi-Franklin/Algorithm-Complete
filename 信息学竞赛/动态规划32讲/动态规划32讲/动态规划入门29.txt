@@ -1,0 +1,398 @@
+动态规划入门29
+分类：算法与数据结构 
+
+3.2多进程动态规划
+
+    从字面上就可以看出，所谓多进程就是在原文题的基础上要求将这个问题重复多次的总和最大。
+
+具体怎么做看个例题吧。
+
+ 
+
+ 例题28
+
+ 
+
+
+
+方格取数
+
+(fgqs.pas/c/cpp)
+
+来源：NOIP2000(提高组)
+
+【问题描述】
+
+设有N*N的方格图(N<=10,我们将其中的某些方格中填入正整数,而其他的方格中则放入数字0。如下图所示（见样例）：
+
+某人从图的左上角的A 点出发，可以向下行走，也可以向右走，直到到达右下角的B点。在走过的路上，他可以取走方格中的数（取走后的方格中将变为数字0）。
+
+此人从A点到B 点共走两次，试找出2条这样的路径，使得取得的数之和为最大。
+
+【输入文件】
+
+ 输入的第一行为一个整数N（表示N*N的方格图），接下来的每行有三个整数，前两个表示位置，第三个数为该位置上所放的数。一行单独的0表示输入结束。
+
+【输出文件】
+
+    只需输出一个整数，表示2条路径上取得的最大的和。
+
+【输入样例】
+
+8
+
+2  3  13
+
+2  6  6
+
+3  5  7
+
+4  4  14
+
+5  2  21
+
+5  6  4
+
+6  3  15
+
+7  2  14
+
+0  0  0
+
+【输出样例】
+
+67
+
+【问题分析】
+
+这是一道很经典的多进程动态规划题，如果只取一次，它的模型就是我们前面讲的街道问题了，很简单就可以实现。现在要求取两次，怎么办呢？
+
+一个自然的想法是：将前面的取过的数全赋成0，然后在取一次，感觉挺对的，样例也过了。
+
+但这样做是错的，第一次取的显然是最大值，但第二次取的未必次大，所以也许两条非最大的路，也许比一条最大一条小一点的路更优。
+
+看个例子：
+
+0 0 2 0 3 0                      0 0 2 0 3 0
+
+0 0 2 0 0 0                      0 0 2 0 0 0
+
+0 0 2 0 2 0                      0 0 2 0 2 0
+
+0 0 0 0 2 0                      0 0 0 0 2 0
+
+0 0 0 0 2 0                      0 0 0 0 2 0
+
+0 0 2 0 2 0                      0 0 2 0 2 0
+
+图1                                图2
+
+如上图，图1是按找上诉思路求得的解。图中红色路线是第一求得的最大值，显然图1红色和紫色两条路径不如图2蓝色和绿色两条路径大。
+
+既然这样做不行，我们还得回到动态规划的本质来看代问题，我们在想想这个问题的状态，对于走一次，走到矩阵的任意一个位置就是一个状态，而要是走两次，显然走到矩阵的某个位置只是一个状态的一部分，不能完整的描述整个状态。那另一部分显然就是第二次走到的位置了。如果我们把这两部分合起来就是一个完整的状态了。
+
+于是，设计一个状态opt[i1,j1,i2,j2]表示两条路分别走到（i1,j1）点和（i2,j2）点时取到的最大值。显然决策有4中（乘法原理一个点两种*另一个点的两中）
+
+即（上，上）（上，左）（左，上）（左，左）上和左表示从哪个方向走到该点，当然要注意走到同行，同列，同点时的情况（因为要求路径不重复）。
+
+状态转移方程：
+
+         max(opt[i1-1,j1,i2-1,j2],opt[i1,j1-1,i2-1,j2])+a[i1,j1]+a[i2,j2]  (1<=i1=i2<=n,1<=j1<=j2<=n)
+
+         max(opt[i1-1,j1,i2,j2-1],opt[i1,j1-1,i2,j2-1])
+
+                                      (1<=j1=j2<=n,1<=i1<=i2<=n)
+
+opt[i,j]=  max(opt[i1-1,j1,i2-1,j2],opt[i1-1,j1,i2,j2-1],opt[i1,j1-1,i2-1,j2],
+
+opt[i1,j1-1,i2,j2-2])+a[i1,j1]+a[i2,j2]  (1<=i1,j1<=i2,j2<=n)
+
+        max(opt[i1-1,j1,i2-1,j2],opt[i1-1,j1,i2,j2-1],opt[i1,j1-1,i2-1,j2],
+
+opt[i1,j1-1,i2,j2-2])+a[i1,j1]   (1<=i1=i2<=n,1<=j1=j2<=n)
+
+ 
+
+时间复杂度：状态数O（N4）*转移代价O（1）=总复杂度O（N4）
+
+空间复杂度：O（N4）
+
+由于数据很小所以这样做虽然时间和空间复杂度都很高但还是可以AC的。
+
+【源代码1】
+
+program fgqs;
+
+const
+
+ fin='fgqs.in';
+
+ fout='fgqs.out';
+
+ maxn=11;
+
+var
+
+ a:array[0..maxn,0..maxn] of longint;
+
+ opt:array[0..maxn,0..maxn,0..maxn,0..maxn] of longint;
+
+ n:longint;
+
+procedure init;
+
+ var
+
+  i,j,w:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  read(n);
+
+  repeat
+
+   readln(i,j,w);
+
+   a[i,j]:=w;
+
+  until i=0;
+
+  close(input);
+
+ end;
+
+function max(x,y:longint):longint;
+
+ begin
+
+  max:=y;
+
+  if x>y then max:=x;
+
+ end;
+
+procedure main;
+
+ var
+
+  i1,i2,j1,j2:longint;
+
+ begin
+
+  for i1:=1 to n do
+
+   for j1:=1 to n do
+
+    for i2:=i1 to n do
+
+     for j2:=1 to j1 do
+
+      if (i1=i2) and (j1=j2) then
+
+       opt[i1,j1,i2,j2]:=opt[i1-1,j1,i2,j2-1]+a[i1,j1]
+
+      else if (i1=i2-1) and (j1=j2) then
+
+       opt[i1,j1,i2,j2]:=max(opt[i1-1,j1,i2,j2-1],opt[i1,j1-1,i2,j2-1])
+
++a[i1,j1]+a[i2,j2]
+
+      else if (i1=i2) and (j1=j2+1) then
+
+       opt[i1,j1,i2,j2]:=max(opt[i1-1,j1,i2,j2-1],opt[i1-1,j1,i2-1,j2])
+
++a[i1,j1]+a[i2,j2]
+
+      else begin
+
+            opt[i1,j1,i2,j2]:=max(opt[i1-1,j1,i2,j2-1],opt[i1-1,j1,i2-1,j2]);
+
+            opt[i1,j1,i2,j2]:=max(opt[i1,j1,i2,j2],opt[i1,j1-1,i2,j2-1]);
+
+            opt[i1,j1,i2,j2]:=max(opt[i1,j1,i2,j2],opt[i1,j1-1,i2-1,j2]);
+
+            inc(opt[i1,j1,i2,j2],a[i1,j1]+a[i2,j2]);
+
+           end;
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln(opt[n,n,n,n]);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.       
+
+   如果这个题的数据范围在大点就得优化了，怎么优化这个程序呢？
+
+   上面说过对于时间空间都大的时候，首先想到的就是寻找特点，改变状态的表示法，减少状态的维数。
+
+   仔细分析我们发现，处于同行，同列的状态，等价于另外一个点在对角线上的状态。而这条对角线正是此题的阶段。因为在状态转移的时候后面的哪个点总是从固定的一个方向转移来的。也就是说我们只要对角先上的状态就可以省掉那些同行同列的状态了。
+
+做过N皇的同学一定知道怎么表示右上到左下的这几条对角线，不知道的同学也没关系,对于一个点（i,j）他对角右上角的点就是（i-1，j+1）所以可以看出这些点的和是定值，且值从2到N*2。
+
+这样用三个变量就可以表示这两个点了，于是设计状态opt[k,i1,i2]表示处于阶段K时走到i1,i2的两条路径所取得的数的最大和。
+
+用上面的思维不难想出动态转移方程：
+
+            max(opt[k-1,i1-1,i2-1],opt[k-1,i1-1,i2],opt[k-1,i1,i2-1],
+
+opt[k-1,i1,i2])+a[i1,k-i1]+a[i2,k-i2]   
+
+(1<=i1,i2<=n,2<=k<=n*2,i1<>i2)
+
+otp[k,i1,i2]=
+
+opt[k-1,i1-1,i2]+a[i1,k-i1]
+
+(1<=i1,i2<=n,2<=k<=n*2,i1=i2)
+
+ 
+
+【源代码2】
+
+program fgqs;
+
+const
+
+ fin='fgqs.in';
+
+ fout='fgqs.out';
+
+ maxn=11;
+
+var
+
+ a:array[0..maxn,0..maxn] of longint;
+
+ opt:array[0..maxn*2,0..maxn,0..maxn] of longint;
+
+ n:longint;
+
+procedure init;
+
+ var
+
+  i,j,w:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  read(n);
+
+  repeat
+
+   readln(i,j,w);
+
+   a[i,j]:=w;
+
+  until i=0;
+
+  close(input);
+
+ end;
+
+function max(x,y:longint):longint;
+
+ begin
+
+  max:=y;
+
+  if x>y then max:=x;
+
+ end;
+
+procedure main;
+
+ var
+
+  k,i1,i2,j1,j2,mid:longint;
+
+ begin
+
+  for k:=2 to n*2 do
+
+   begin
+
+    for i1:=1 to n do
+
+     if (k-i1>0) and (k-i1<=n) then
+
+      for i2:=1 to n do
+
+       if (k-i2>0) and (k-i2<=n) then
+
+        begin
+
+         if i1=i2 then
+
+          opt[k,i1,i2]:=opt[k-1,i1-1,i2]+a[i1,k-i1]
+
+         else begin
+
+               opt[k,i1,i2]:=max(opt[k-1,i1,i2],opt[k-1,i1,i2-1]);
+
+               opt[k,i1,i2]:=max(opt[k,i1,i2],opt[k-1,i1-1,i2]);
+
+               opt[k,i1,i2]:=max(opt[k,i1,i2],opt[k-1,i1-1,i2-1]);
+
+               inc(opt[k,i1,i2],a[i1,k-i1]+a[i2,k-i2]);
+
+              end;
+
+        end;
+
+   end;
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln(opt[n*2,n,n]);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.                          
+
+注：如果取多次，和取两次道理一样，只不过有多一次，状态就多加一维，如果数据范围很大，时间空间复杂度太高时可以用网络流解这个问题，只是本人才疏学浅不能和大家分享了。

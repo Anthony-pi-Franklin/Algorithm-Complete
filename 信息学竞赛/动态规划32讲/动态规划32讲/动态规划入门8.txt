@@ -1,0 +1,110 @@
+动态规划入门8
+分类：算法与数据结构 
+
+例题7
+
+积木城堡 
+
+来源：vijos P1059
+
+【问题描述】
+
+    SY的儿子小SY最喜欢玩的游戏用积木垒漂亮的城堡。城堡是用一些立方体的积木垒成的，城堡的每一层是一块积木。小SY是一个比他爸爸SY还聪明的孩子，他发现垒城堡的时候，如果下面的积木比上面的积木大，那么城堡便不容易倒。所以他在垒城堡的时候总是遵循这样的规则。
+    小SY想把自己垒的城堡送给幼儿园里漂亮的女孩子们，这样可以增加他的好感度。为了公平起见，他决定把送给每个女孩子一样高的城堡，这样可以避免女孩子们为了获得更漂亮的城堡而引起争执。可是他发现自己在垒城堡的时候并没有预先考虑到这一点。所以他现在要改造城堡。由于他没有多余的积木了，他灵机一动，想出了一个巧妙的改造方案。他决定从每一个城堡中挪去一些积木，使得最终每座城堡都一样高。为了使他的城堡更雄伟，他觉得应该使最后的城堡都尽可能的高。
+任务：
+    请你帮助小SY编一个程序，根据他垒的所有城堡的信息，决定应该移去哪些积木才能获得最佳的效果。
+
+【输入文件】
+
+    第一行是一个整数N(N<=100)，表示一共有几座城堡。以下N行每行是一系列非负整数，用一个空格分隔，按从下往上的顺序依次给出一座城堡中所有积木的棱长。用-1结束。一座城堡中的积木不超过100块，每块积木的棱长不超过100。
+
+【输出文件】
+
+    一个整数，表示最后城堡的最大可能的高度。如果找不到合适的方案，则输出0。
+
+【输入样例】
+
+2
+2 1 –1
+3 2 1 -1
+【输出样例】
+
+3
+
+【提交链接】
+
+http://www.vijos.cn/
+
+【问题分析】
+
+首先要说明一点，可以挪走任意一个积木，不见得是最上面的。
+
+初看题目有点茫然，但抽象一下就。。。。。。。。。。
+
+其实塔好积木在拿走就相当于当初搭的时候没选拿走的积木。这样一转化思维问题就清楚了。把积木可搭建的最大高度看做背包的载重，每块积木的高度就是物品的重量。也就是用给定的物品装指定的包，使每个包装的物品一样多，且在符合条件的前提下尽量多。
+
+这样就变成经典的背包问题了。
+
+对于每一个城堡求一次，最终找到每一个城堡都可达到的最大高度即可。
+
+【源代码1】
+
+program P1095;
+const
+ maxhig=7000;
+ maxn=100;
+var
+ n,top:longint;
+ opt:array[0..maxn,0..maxhig] of boolean;
+ a:array[0..maxn] of longint;
+procedure init;
+ var
+  i:longint;
+ begin
+  readln(n);
+  fillchar(opt,sizeof(opt),false);
+  for i:=1 to n do
+   opt[i,0]:=true;
+ end;
+function can(m:longint):boolean;
+ var
+  i:longint;
+ begin
+  can:=true;
+  for i:=1 to n do
+   if not opt[i,m] then
+    exit(false);
+ end;
+procedure main;
+ var
+  ii,m,tothig,i,j,ans:longint;
+ begin
+  for ii:=1 to n do
+   begin
+    top:=0;
+    read(m);
+    tothig:=0;
+    while m>0 do
+     begin
+      inc(top);
+      a[top]:=m;
+      inc(tothig,m);
+      read(m);
+     end;
+    for i:=1 to top do
+     for j:=tothig downto 1 do
+      if (j-a[i]>=0) and (opt[ii,j-a[i]]) then
+       opt[ii,j]:=true;
+   end;
+  ans:=maxhig;
+  while not opt[1,ans] do 
+dec(ans);
+  while not can(ans) do
+    dec(ans);
+  writeln(ans);
+ end;
+begin
+ init;
+ main;
+end.
+

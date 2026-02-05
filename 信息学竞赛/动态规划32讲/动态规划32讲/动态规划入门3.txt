@@ -1,0 +1,79 @@
+动态规划入门3
+分类：算法与数据结构 
+
+例题二 
+合唱队形
+
+(chorus.pas/c/cpp)
+
+                 来源：NOIP2004(提高组) 第一题
+
+     N位同学站成一排，音乐老师要请其中的(N-K)位同学出列，使得剩下的K位同学排成合唱队形。
+    合唱队形是指这样的一种队形：设K位同学从左到右依次编号为1，2…，K，他们的身高分别为T1，T2，…，TK，  则他们的身高满足T1<...<Ti>Ti+1>…>TK(1<=i<=K)。
+    你的任务是，已知所有N位同学的身高，计算最少需要几位同学出列，可以使得剩下的同学排成合唱队形。
+【输入文件】
+    输入文件chorus.in的第一行是一个整数N(2<=N<=100)，表示同学的总数。第一行有n个整数，用空格分隔，第i个整数Ti(130<=Ti<=230)是第i位同学的身高(厘米)。
+【输出文件】
+    输出文件chorus.out包括一行，这一行只包含一个整数，就是最少需要几位同学出列。
+【样例输入】
+8
+186 186 150 200 160 130 197 220
+【样例输出】
+4
+【数据规模】
+对于50％的数据，保证有n<=20；
+对于全部的数据，保证有n<=100。
+【问题分析】
+
+  出列人数最少，也就是说留的人最多，也就是序列最长。
+
+这样分析就是典型的最长下降子序列问题。只要枚举每一个人站中间时可以的到的最优解。显然它就等于，包括他在内向左求最长上升子序列，向右求最长下降子序列。
+
+我们看一下复杂度：
+
+计算最长下降子序列的复杂度是O（N2），一共求N次，总复杂度是O（N3）。这样的复杂度对于这个题的数据范围来说是可以AC的。但有没有更好的方法呢？
+
+其实最长子序列只要一次就可以了。因为最长下降（上升）子序列不受中间人的影响。
+
+只要用OPT1求一次最长上升子序列，OPT2求一次最长下降子序列。这样答案就是N-max(opt1[i]+opt2[i]-1).
+
+ 复杂度由O（N3）降到了O（N2）。
+
+【源代码】
+
+program chorus;
+var
+	i,j,ans,n:longint;
+	a,s,f:array[0..100000]of longint;
+begin
+	assign(input,'input.txt'); reset(input);
+	assign(output,'output.txt'); rewrite(output);
+	readln(n);  ans:=0;
+	for i:=1 to n do
+	begin
+		read(a[i]);
+		f[i]:=1; s[i]:=1;
+	end; readln;
+	a[0]:=maxlongint;
+	for i:=1 to n do
+	begin
+		for j:=i-1 downto 0 do
+		begin
+			if (a[j]<a[i])and(f[j]+1>f[i]) then
+				f[i]:=f[j]+1;
+		end;
+	end;
+	a[n+1]:=maxlongint;
+	for i:=n downto 1 do
+	begin
+		for j:=i+1 to n+1 do
+		begin
+			if (a[j]<a[i])and(s[j]+1>s[i]) then
+				s[i]:=s[j]+1;
+		end;
+	end;
+	for i:=1 to n do
+	if f[i]+s[i]>ans then ans:=f[i]+s[i];
+	writeln(n-ans+1);
+	close(input);close(output);
+end.

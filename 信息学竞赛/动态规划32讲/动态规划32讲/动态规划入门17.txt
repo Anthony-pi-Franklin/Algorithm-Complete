@@ -1,0 +1,196 @@
+动态规划入门17
+分类：算法与数据结构 
+
+2.2街道问题
+
+   和数塔问题一样街道问题也来源于一道典型的例题，下面我们看一下这道题。
+
+ 
+
+ 例题16
+
+
+ 
+
+                                   街道问题
+
+                    (way.pas/c/cpp)
+
+来源：《奥赛经典》（提高篇）
+
+【问题描述】
+
+   
+如图所示的矩形图中找到一条从左下角到右上角的最短路径，图中数字表示边的长度。只能向右或向上走。
+
+【输入文件】
+
+第一行两个数，N，M 矩形的点有N行M列。（0<N，M<1000）
+
+接下来N行每行M-1个数描述横向边的长度。
+
+接下来N-1行每行M个数描述纵向边的长度。
+
+边的长度小于10。
+
+【输出文件】
+
+    一个数——最短路径长度。
+
+【输入样例】
+
+4 5
+
+3 7 4 8
+
+4 6 3 5
+
+3 6 3 5
+
+5 4 6 2
+
+7 6 3 5 3
+
+2 8 5 9 4
+
+8 7 4 3 7
+
+【输出样例】
+
+    28
+
+【问题分析】
+
+因为只能向右或向上走，所以阶段应该是这样的：
+
+
+如果把图再做个改动看看：
+
+ 
+
+
+这样就想是上面说的数塔问题了，只不过数塔问题的数在点上而街道问题的数在边上。但是并不影响问题的求解我们可以用数塔问题的思路来解这个问题。
+
+设计一个二维状态opt[i,j]表示走到（i,j）的最短路径，显然这个路径只可能是左边或上边走来的，所以决策就是这两个方向上加上经过的边的和中一个较短的路。于是有下面的状态转移方程：
+
+opt[i+1,j]+z[i,j]                        (j=1)
+
+opt[i,j]＝  opt[i,j-1]+h[i,j]                         (i=n)
+
+min{opt[i+1,j]+z[i,j],opt[i,j-1]+h[i,j]}      (0<i<=n,0<j<=m)
+
+和数塔问题一样，这个问题也可以做类似的预处理：初始化opt的值是一个很大的数，保证解不会超过他，但要注意不要太的了，太大了可能有２２５问题。opt[0,0]=0。这样就可以把方程整理为：
+
+opt[i,j]= min{opt[i+1,j]+z[i,j],opt[i,j-1]+h[i,j]}
+
+复杂度：状态数O（N2）*转移代价O（1）=O（N2）
+
+这一类问题是很经典的问题。
+
+思考这样一个问题：如果让找出一条最短路径，一条较短路径，且两条路径不重合该怎么办呢？
+
+这个问题先留给大家思考，在后面的多维状态中会详细的讲。
+
+【源代码】
+
+program way;
+
+const
+
+ fin='way.in';
+
+ fout='way.out';
+
+ maxn=1010;
+
+var
+
+ h,z,opt:array[0..maxn,0..maxn] of longint;
+
+ n,m:longint;
+
+procedure init;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  read(n,m);
+
+  for i:=1 to n do
+
+   for j:=2 to m do
+
+    read(h[i,j]);
+
+  for i:=1 to n-1  do
+
+   for j:=1 to m do
+
+    read(z[i,j]);
+
+  close(input);
+
+ end;
+
+function min(x,y:longint):longint;
+
+ begin
+
+  min:=y;
+
+  if x<y then min:=x;
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),$7F);
+
+  opt[n,0]:=0;
+
+  for i:=n downto 1 do
+
+   for j:=1 to m do
+
+    opt[i,j]:=min(opt[i+1,j]+z[i,j],opt[i,j-1]+h[i,j]);
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln(opt[1,m]);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.
+
+还有一道例题是街道问题的变形在记忆化搜索处会说

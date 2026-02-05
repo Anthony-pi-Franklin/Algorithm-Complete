@@ -1,0 +1,158 @@
+动态规划入门12
+分类：算法与数据结构 
+
+上面提到的几个例题都是最基础的题目，而且把问题抽象后就与背包问题的基本模型一样了，但有些题目用到了基本模型，要求的解却不一定很模型一样，下面看个例子：
+
+例题11 
+Money Systems
+
+(money.pas/c/cpp)
+
+来源：USACO 2.3
+
+【问题描述】
+
+    母牛们不但创建了他们自己的政府而且选择了建立了自己的货币系统。[In their own rebellious way],，他们对货币的数值感到好奇。
+
+传统地，一个货币系统是由1,5,10,20 或 25,50, 和 100的单位面值组成的。
+
+母牛想知道有多少种不同的方法来用货币系统中的货币来构造一个确定的数值。
+
+举例来说, 使用一个货币系统 {1,2,5,10,...}产生 18单位面值的一些可能的方法是:18x1, 9x2, 8x2+2x1, 3x5+2+1,等等其它。写一个程序来计算有多少种方法用给定的货币系统来构造一定数量的面值。保证总数将会适合long long (C/C++) 和 Int64 (Free Pascal)。
+
+ 
+
+【输入文件】
+
+货币系统中货币的种类数目是 V (1<= V<=25)。要构造的数量钱是 N (1<= N<=10,000)。
+
+第 1 行: 二整数， V 和 N
+
+第 2 行： 可用的货币 V 个整数。
+
+ 
+
+【输出文件】
+
+单独的一行包含那个可能的构造的方案数。
+
+【输入样例】
+
+3 10
+
+1 2 5
+
+【输出样例】
+
+10
+
+【提交链接】
+
+http://train.usaco.org/
+
+【问题分析】
+
+把钱面值，把要构造的前看做载重为N的背包，这个问题便是0/1背包的简化版了，但这个问题和传统模型有所差异，不是判断N是否可构成，而是求构成N的方案，而且这里的面值是可以重复利用的（你可以看做是物品有无限多）。
+
+对与第一个问题，只要把原来BOOLEAN型的状态改为INT64，在递推过程中累加方案数即可。
+
+对于第二个问题，基本模型中为了避免重复在内重循环枚举背包载重时采用倒循环，现在只要正向循环就OK了。
+
+复杂度与原模型相同。
+
+【源代码】
+
+{
+
+ID:hhzhaojia2
+
+PROG:money
+
+LANG:PASCAL
+}
+
+program money;
+
+const
+
+ fin='money.in';
+
+ fout='money.out';
+
+ maxv=100;
+
+ maxn=10010;
+
+var
+
+ a:array[0..maxv] of longint;
+
+ opt:array[0..maxn] of int64;
+
+ v,n:longint;
+
+procedure init;
+
+ var
+
+  i:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  read(v,n);
+
+  for i:= 1 to v do
+
+   read(a[i]);
+
+  close(input);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),0);
+
+  opt[0]:=1;
+
+  for i:=1 to v do
+
+   for j:=a[i] to n do
+
+     inc(opt[j],opt[j-a[i]]);
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln(opt[n]);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.

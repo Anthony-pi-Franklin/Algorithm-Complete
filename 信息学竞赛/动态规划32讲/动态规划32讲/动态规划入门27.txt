@@ -1,0 +1,257 @@
+动态规划入门27
+分类：算法与数据结构 
+
+ 例题26
+
+Divisibility
+
+来源：ZJU2042
+
+【问题描述】
+
+Consider an arbitrary sequence of integers. One can place + or - operators between integers in the sequence, thus deriving different arithmetical expressions that evaluate to different values. Let us, for example, take the sequence: 17, 5, -21, 15. There are eight possible expressions:
+
+17 + 5 + -21 + 15 = 16
+17 + 5 + -21 - 15 = -14
+17 + 5 - -21 + 15 = 58
+17 + 5 - -21 - 15 = 28
+17 - 5 + -21 + 15 = 6
+17 - 5 + -21 - 15 = -24
+17 - 5 - -21 + 15 = 48
+17 - 5 - -21 - 15 = 18
+
+We call the sequence of integers divisible by K if + or - operators can be placed between integers in the sequence in such way that resulting value is divisible by K. In the above example, the sequence is divisible by 7 (17+5+-21-15=-14) but is not divisible by 5.
+
+You are to write a program that will determine divisibility of sequence of integers.
+
+译题：
+
+给出N个数，你可以在这N个数中任意地添加+号或-号，求出能不能使算出的结果被K整除。可以则打印“Divisible”，否则打印“Not divisible”
+
+ 
+
+(1 <= N <= 10000, 2 <= K <= 100)
+
+下面是一个例子：
+
+ 
+
+有4个数，分别是17 5 -21 15
+
+ 
+
+17 + 5 + -21 + 15 = 16
+
+17 + 5 + -21 - 15 = -14
+
+17 + 5 - -21 + 15 = 58
+
+17 + 5 - -21 - 15 = 28
+
+17 - 5 + -21 + 15 = 6
+
+17 - 5 + -21 - 15 = -24
+
+17 - 5 - -21 + 15 = 48
+
+17 - 5 - -21 - 15 = 18
+
+ 
+
+有8种添法，其中第二种求出的-14能被7整除。
+
+ 
+
+【输入文件】
+
+The first line of the input contains two integers, N and K (1 <= N <= 10000, 2 <= K <= 100) separated by a space.
+
+The second line contains a sequence of N integers separated by spaces. Each integer is not greater than 10000 by it's absolute value.
+
+注意第一个数是测试数据的组数，多组测试数据一起测。。
+
+【输出文件】
+
+Write to the output file the word "Divisible" if given sequence of integers is divisible by K or "Not divisible" if it's not.
+
+The first line of a multiple input is an integer N, then a blank line followed by N input blocks. Each input block is in the format indicated in the problem description. There is a blank line between input blocks.
+
+The output format consists of N output blocks. There is a blank line between output blocks.
+
+注意：输出每组结果之间有空格，最后一行无空格，格式不对不能AC，我就是因为格式不对调了一上午。。。。
+
+【输入样例】
+
+2
+
+ 
+
+4 7
+
+17 5 -21 15
+
+ 
+
+4 5
+
+17 5 -21 15
+
+【输出样例】
+
+Divisible
+
+ 
+
+Not divisible
+
+【问题分析】
+
+看到题目第一个反映就是枚举中间添的运算符，算出值在MOD K如果有一个值MOD K=0则输出“Divisible”。
+
+时间复杂度是O（2N-1）。
+
+但是题目给出的数据量很大，这样做效率太低了。
+
+因为题目涉及MOD运算，要想简化问题就需要知道一些基本的MOD运算性质：
+
+A*B mod C=(A mod C*B mod C) mod C
+
+(A+B) mod C=(A mod C+B mod C) mod C
+
+有了这个性质，我们就可以把累加后求余转化成求余后累加（我们把减法看作加负数以后分析只说加法）再求余。这样我们的读入数据就控制在了1-K到K-1的范围内了。
+
+我们要判断的就是
+
+所有结果的累加和 MOD K 是否为0。简记为:
+
+（A+B）mod K=0 or (A+B) mod K<>0
+
+如果我们按数的个数划分阶段，前N-1个数的运算结果 MOD K看做A，第N个数看作B就OK了。
+
+于是我们想到了这样的状态：opt[i,j]表示前i个数是否可以得到余数为J的结果。
+
+那么状态转移方程就是
+
+opt[i,(j-a[i] mod k )mod k]=opt[i-1,j]            (opt[i-1,j]=true);
+
+opt[i,(j+a[i] mod k) mod k]=opt[i-1,j]           (opt[i-1,j]=true);
+
+如果opt[n,0]=true就输出‘Divisible’
+
+注意上面
+
+【源代码】
+
+program P2042;
+
+const
+
+ maxk=110;
+
+ maxn=10010;
+
+var
+
+ a:array[0..maxn] of longint;
+
+ opt:array[1..2,-maxk..maxk] of boolean;
+
+ n,k,tim,ii:longint;
+
+ vis:array[0..maxn] of boolean;
+
+procedure init;
+
+ var
+
+  i:longint;
+
+ begin
+
+  read(n,k);
+
+  for i:=1 to n do
+
+   read(a[i]);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j,p1,p2,p3:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),false);
+
+  fillchar(vis,sizeof(vis),false);
+
+  for i:=1 to n do
+
+   if a[i] mod k=0 then vis[i]:=true;
+
+  for i:=1 to n do
+
+   a[i]:=a[i] mod k;
+
+  opt[1,a[1]]:=true;
+
+  p1:=1;
+
+  p2:=2;
+
+  for i:=2 to n do
+
+   if not vis[i] then
+
+    begin
+
+     fillchar(opt[p2],sizeof(opt[p2]),false);
+
+     for j:=1-k to k-1 do
+
+      if opt[p1,j] then
+
+       begin
+
+        opt[p2,(j-a[i]) mod k]:=true;
+
+        opt[p2,(j+a[i]) mod k]:=true;
+
+       end;
+
+     p3:=p1;
+
+     p1:=p2;
+
+     p2:=p3;
+
+    end;
+
+ if opt[p1,0] then writeln('Divisible')
+
+ else writeln('Not divisible');
+
+ end;
+
+begin
+
+ read(tim);
+
+ for ii:=1 to tim do
+
+  begin
+
+   if ii>1 then
+
+   writeln;
+
+   init;
+
+   main;
+
+  end;
+
+end.

@@ -1,0 +1,277 @@
+动态规划入门5
+分类：算法与数据结构 
+例题4
+船
+
+(ships.pas/c/cpp)
+
+                     来源：《奥赛经典》（提高篇）
+
+【问题描述】
+
+PALMIA国家被一条河流分成南北两岸，南北两岸上各有N个村庄。北岸的每一个村庄有一个唯一的朋友在南岸，且他们的朋友村庄彼此不同。
+
+每一对朋友村庄想要一条船来连接他们，他们向政府提出申请以获得批准。由于河面上常常有雾，政府决定禁止船只航线相交（如果相交，则很可能导致碰船）。
+
+你的任务是编写一个程序，帮助政府官员决定批准哪些船只航线，使得不相交的航线数目最大。
+
+【输入文件】ships.in
+
+    输入文件由几组数据组成。每组数据的第一行有2个整数X，Y，中间有一个空格隔开，X代表PALMIA河的长度（10<=X<=6000），Y代表河的宽度（10<=Y<=100）。第二行包含整数N，表示分别坐落在南北两岸上的村庄的数目（1<=N<=5000）。在接下来的N行中，每一行有两个非负整数C，D，由一个空格隔开，分别表示这一对朋友村庄沿河岸与PALMIA河最西边界的距离（C代表北岸的村庄，D代表南岸的村庄），不存在同岸又同位置的村庄。最后一组数据的下面仅有一行，是两个0，也被一空格隔开。
+
+【输出文件】ships.out
+
+      对输入文件的每一组数据，输出文件应在连续的行中表示出最大可能满足上述条件的航线的数目。
+
+【输入样例】
+
+30 4
+
+7
+
+22 4
+
+2 6
+
+10 3
+
+15 12
+
+9 8
+
+17 17
+
+4 2
+
+0 0
+
+【输出样例】
+
+4
+
+【问题分析】
+
+这道题目相对来说思考难度较高，从字面意义上看不出问题的本质来，有点无法下手的感觉。这里我给大家推荐两种思考这类问题的方法。
+
+法一：寻找规律法（我前面总结提到的第3个方法）
+
+寻找规律自然要推几组数据，首先当然有从样例入手；
+
+
+
+ 
+
+仔细观察上图：红色航线是合法的，那么他们满足什么规律呢？
+
+                 C1    C2   C3   C4
+
+北岸红线的端点： 4     9    15   17
+
+南岸红线的端点： 2     8    12   17
+
+                 D1    D2   D3   D4
+
+不难看出无论线的斜率如何，都有这样的规律：
+
+C1<C2<C3<C4 且  D1<D2<D3<D4
+
+如果我们把输入数据排升序，问题变抽象为：
+
+在一个序列（D）里找到最长的序列满足DI<DJ<Dk……且i<j<k
+
+这样的话便是典型的最长非降子序列问题了。。。。
+
+法二：边界条件法（我前面总结提到的第4个方法）
+
+边界法其实就是把数据往小了缩，显然N=1是答案是1。N=2时呢？
+
+考虑这样一组数据：
+
+N=2
+
+C1    D1
+
+C2    D2
+
+当 C1<C2 时，如果D1>D2 那么一定会相交，反之则不会相交。
+
+当C1  >C2时，如果D1<D2 那么一定会相交，反之则不会相交。
+
+N=3
+
+C1    D1
+
+C2    D2
+
+C3    D3
+
+……
+
+其实不用在推导N=3了，有兴趣的可以推导去。看N=2时就能得出：
+
+对于任意两条航线如果满足Ci<Cj 且Di<Dj 则两条航线不相交。这样的话要想在一个序列里让所有的航线都不相交那比然满足，C1<C2<C3…Cans且D1<D2<D3…<Dans ，也就是将C排序后求出最长的满足这个条件的序列的长度就是解。
+
+这样分析后显然是一个最长非降子序列问题。
+
+复杂度：排序可以用O（nlogn）的算法，求最长非降子序列时间复杂度是O(n2).
+
+总复杂度为O（n2）.
+
+ 
+
+【源代码】
+
+program ships;
+
+const
+
+ fin='ships.in';
+
+ fout='ships.out';
+
+ maxn=5010;
+
+type
+
+ retype=record
+
+         C,D:longint;
+
+        end;
+
+var
+
+ x,y,n,ans:longint;
+
+ a:array[0..maxn] of retype;
+
+ opt:array[0..maxn] of longint;
+
+procedure init;
+
+ var
+
+  i:longint;
+
+ begin
+
+  readln(n);
+
+  for i:=1 to n do
+
+   read(a[i].c,a[i].d);
+
+ end;
+
+procedure quick(L,r:longint);
+
+ var
+
+  i,j,x:longint;
+
+  y:retype;
+
+ begin
+
+  i:=L;
+
+  j:=r;
+
+  x:=a[(i+j) div 2].c;
+
+  repeat
+
+   while a[i].c<x do
+
+    inc(i);
+
+   while a[j].c>x do
+
+    dec(j);
+
+   if i<=j then
+
+    begin
+
+     y:=a[i];
+
+     a[i]:=a[j];
+
+     a[j]:=y;
+
+     inc(i);
+
+     dec(j);
+
+    end;
+
+  until i>j;
+
+  if j>L then quick(L,j);
+
+  if i<r then quick(i,r);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),0);
+
+  quick(1,n);
+
+  for i:=1 to n do
+
+   for j:=0 to i-1 do
+
+    if (a[j].d<a[i].d) and (opt[j]+1>opt[i]) then
+
+     opt[i]:=opt[j]+1;
+
+  ans:=-maxlongint;
+
+  for i:=1 to n do
+
+   if ans<opt[i] then
+
+    ans:=opt[i];
+
+  writeln(ans);
+
+ end;
+
+begin
+
+ assign(input,fin);
+
+ reset(input);
+
+ assign(output,fout);
+
+ rewrite(output);
+
+ read(x,y);
+
+ while (x+y<>0) do
+
+  begin
+
+   init;
+
+   main;
+
+   read(x,y);
+
+  end;
+
+ close(input);
+
+ close(output);
+
+end.
+

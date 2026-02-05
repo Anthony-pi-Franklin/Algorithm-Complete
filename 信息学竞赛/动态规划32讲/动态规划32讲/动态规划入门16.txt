@@ -1,0 +1,193 @@
+动态规划入门16
+分类：算法与数据结构 
+
+ 例题15
+
+Henry捡钱
+
+                         (money.pas/c/cpp)
+
+来源：Dream Team邀请赛
+
+【问题描述】
+
+最近,Henry由于失恋(被某大牛甩掉！)心情很是郁闷.所以,他去了大牛家,寻求Michael大牛的帮助,让他尽快从失恋的痛苦中解脱出来.Michael大牛知道Henry是很爱钱的,所以他是费尽脑水,绞尽脑汁想出了一个有趣的游戏,帮助Henry.....
+
+Michael感觉自己简直是个天才(我们从不这么认为),就把这个游戏取名为:Henry拣钱.为了帮助更多的人采用这种方法早日脱离失恋之苦,Michael特地选在这次DT比赛中把游戏介绍给大家...(大家鼓掌!!!)
+
+其实,这个游戏相当垃圾,目的就是为了满足Henry这种具有强烈好钱的心理的人.游戏是这样的:Michael首先找到了一块方形的土地,面积为m*n(米^2).然后他将土地划分为一平方米大小的方形小格.Michael在每个格子下都埋有钱(用非负数s表示,表示人民币的价值为s)和炸弹(用负数s表示,表示Henry挖出该方格下的东西会花掉s的钱去看病，医炸弹炸伤的伤口)...游戏的要求就是让Henry从一侧的中间列出发,按照下图的5种方式前进（前进最大宽度为5）,不能越出方格.他每到一个格子,必定要取走其下相应的东西.直到到达土地的另一侧,游戏结束.不用说也知道,Henry肯定想得到最多的人民币.所以他偷窥了,Michael埋钱的全过程,绘成了一张距阵图.由于他自己手动找会很麻烦,于是他就找到了学习编程的你.请给帮他找出,最大人民币价值.
+
+
+拣钱路线规则(只有5个方向，如下图)：
+
+ 
+
+  
+
+ 
+
+
+
+
+H为Henry的出发点，每组数据的出发点都是最后一行的中间位置！
+
+(前方5个格子为当前可以到达的)
+
+【输入文件】
+
+  第一行为m n.(n为奇数)，入口点在最后一行的中间
+
+接下来为m*n的数字距阵.
+
+共有m行,每行n个数字.数字间用空格隔开.代表该格子下是钱或炸弹.
+
+为了方便Henry清算,数字全是整数.
+
+【输出文件】
+
+    一个数,为你所找出的最大人民币价值.
+
+【输入样例】
+
+6 7
+
+16 4 3 12 6 0 3
+
+4 -5 6 7 0 0 2
+
+6 0 -1 -2 3 6 8
+
+5 3 4 0 0 -2 7
+
+-1 7 4 0 7 -5 6
+
+0 -1 3 4 12 4 2
+
+【输出样例】
+
+ 51
+
+【数据范围】
+
+  N and M<=200.
+
+  结果都在longint范围内
+
+【问题分析】
+
+去掉题目华丽的伪装，我们可以这样描述这个题目：
+
+给定一个数字矩阵，从最后一层的中间出发可以向图上所示的5个方向走，直到走到第一层，使经过的数字和最大。
+
+如果我们不考虑负数对问题的影响，这个问题的描述就是经典的数塔问题了，只不过将塔变成了矩阵。
+
+这样就可以用刚刚讲过的数塔问题的模型解这个题目了，我就不多说了。
+
+状态转移方程：
+
+opt[i,j]=max(opt[i-1,k])+a[i,j]   (j-2<=k<=j+2)
+
+【源代码】
+
+program money;
+
+const
+
+ fin='money.in';
+
+ fout='money.out';
+
+ maxn=210;
+
+var
+
+ a,opt:array[0..maxn,0..maxn] of longint;
+
+ n,m,ans,max:longint;
+
+procedure init;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  readln(n,m);
+
+  for i:=1 to n do
+
+   for j:=1 to m do
+
+    read(a[i,j]);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j,k:longint;
+
+ begin
+
+  for i:=1 to n do
+
+   for j:=1 to m do
+
+    begin
+
+     max:=-maxlongint;
+
+     for k:=j-2 to j+2 do
+
+      if (k>0) and (k<=m) and (opt[i-1,k]>max) then
+
+       max:=opt[i-1,k];
+
+     opt[i,j]:=max+a[i,j];
+
+    end;
+
+  ans:=-maxlongint;
+
+  i:=(1+m) div 2;
+
+  for j:=i-2 to i+2 do
+
+   if (j>0) and (j<=m) and (opt[n,j]>ans) then
+
+    ans:=opt[n,j];
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln(ans);
+
+  close(input);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.
+

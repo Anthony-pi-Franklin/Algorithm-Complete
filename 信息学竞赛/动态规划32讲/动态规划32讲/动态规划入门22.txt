@@ -1,0 +1,190 @@
+动态规划入门22
+分类：算法与数据结构 
+
+例题21 
+
+多多看DVD（加强版）
+
+(watchdvd.pas/c/cpp)
+
+来源：本人原创
+
+【问题描述】
+
+    多多进幼儿园了，今天报名了。只有今晚可以好好放松一下了（以后上了学后会很忙）。她的叔叔决定给他买一些动画片DVD晚上看。可是爷爷规定他们只能在一定的时间段L看完。（因为叔叔还要搞NOIP不能太早陪多多看碟，而多多每天很早就困了所以只能在一定的时间段里看碟）。多多列出一张表要叔叔给她买N张DVD碟，大多都是多多爱看的动画片（福音战士，机器猫，火影忍者，樱桃小丸子……）。这N张碟编号为（1，2，3……N）。多多给每张碟都打了分Mi（Mi>0），打分越高的碟说明多多越爱看。每张碟有播放的时间Ti。多多想在今晚爷爷规定的时间里看的碟总分最高。（必须把要看的碟看完，也就是说一张碟不能只看一半）。显然叔叔在买碟是没必要把N张全买了，只要买要看的就OK了，这样节省资金啊。而且多多让叔叔惯的特别任性只要他看到有几张就一定会看完。
+
+可是出现了一个奇怪的问题，买碟的地方只买给顾客M（M<N）张碟，不会多也不会少。这可让多多叔叔为难了。怎么可以在N张碟中只买M张而且在规定时间看完，而且使总价值最高呢？
+
+聪明的你帮帮多多的叔叔吧。
+
+【输入说明】(watchdvd.in)
+
+    输入文件有三行
+
+    第一行：两个数空格隔开的正整数，N，M，L（分别表示叔叔给多多买的碟的数量，商店要买给叔叔的碟的数量，爷爷规定的看碟的时间段）。
+
+    第二行到第N行，每行两个数：T，M，给出多多列表中DVD碟的信息。
+
+【输出说明】(watchdvd.out)
+
+    单独输出一行
+
+表示多多今晚看的碟的总分。
+
+如果商店卖给叔叔的M张碟无法在爷爷规定的时间看完输出0；
+
+【输入样例】
+
+    3 2 10
+
+    11 100
+
+    1 2
+
+    9 1
+
+【输出样例】
+
+    3
+
+【数据范围】
+
+    20%的数据   N <=20;  L<=2000;
+
+    100%的数据  N<=100  L<=2000; M <N
+
+【时限】
+
+1S
+
+【提交链接】
+
+ http://www.rqnoj.cn/
+
+【问题分析】
+
+这道题目是本人在学习背包问题时发现的一个拓展内容，所以就编了道题目，这道题比原问题多了一个条件：就是说不仅背包重量有限，连个数也有限。其实也可以最话成在“找啊找啊找GF”那道题目所说的增加了别的条件。
+
+很多人这么想：那还不简单，在DP的过程中记录一下方案背的包的个数，求解是只要个数等于M就OK了。
+
+其实这个想法是错误的，应为由于M的不同，最优解就不同。对应不同的M有不同的最优解，也就是一个不限制M的较优解可能是限制了M以后的最优解。
+
+正确的解法：在原来背包问题求解的基础上状态多加一维，表示不同的M对应的不同的最优解。
+
+设计状态opt[i,j]表示背包载重是j时，选取物品限制i个的最优解。
+
+状态转移方程：
+
+opt[i,j]=max(opt[i-1,j-w[i]]+v[i])   
+
+时间复杂度：
+
+阶段数O（N）*状态数O（LM）+转移代价O（1）=O（NML）
+
+【源代码】
+
+program bb;
+
+const
+
+ fin='watchdvd.in';
+
+ fout='watchdvd.out';
+
+ maxn=100;
+
+ maxL=1000;
+
+var
+
+ opt:array[0..maxn,0..maxL] of longint;
+
+ w,val:array[0..maxn] of longint;
+
+ n,m,v,ans:longint;
+
+procedure init;
+
+ var
+
+  i:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  readln(n,m,v);
+
+  for i:=1 to n do
+
+   read(w[i],val[i]);
+
+  close(input);
+
+ end;
+
+function max(x,y:longint):longint;
+
+ begin
+
+  max:=y;
+
+  if x>y then max:=x;
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j,k:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),0);
+
+  for i:=1 to n do
+
+   for j:=m downto 1 do
+
+    if j<=i then
+
+     for k:=v downto w[i] do
+
+      if (opt[j-1,k-w[i]]>0) or ((j=1) and (k=w[i])) then
+
+       opt[j,k]:=max(opt[j-1,k-w[i]]+val[i],opt[j,k]);
+
+   ans:=-maxlongint;
+
+   for i:=0 to v do
+
+    if opt[m,i]>ans then ans:=opt[m,i];
+
+ end;
+
+procedure print;
+
+ begin
+
+  write(ans);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.

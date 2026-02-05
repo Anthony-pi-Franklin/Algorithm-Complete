@@ -1,0 +1,242 @@
+动态规划入门25
+分类：算法与数据结构 
+
+ 例题24
+
+统计单词个数
+
+                        (.pas/c/cpp)
+
+来源：NOIP2001（提高组）
+
+【问题描述】
+
+    给出一个长度不超过200的由小写英文字母组成的字母串(约定;该字串以每行20个字母的方式输入，且保证每行一定为20个)。要求将此字母串分成k份(1<k<=40)，且每份中包含的单词个数加起来总数最大(每份中包含的单词可以部分重叠。当选用一个单词之后，其第一个字母不能再用。例如字符串this中可包含this和is，选用this之后就不能包含th)。
+单词在给出的一个不超过6个单词的字典中。
+要求输出最大的个数。
+
+【输入文件】
+
+去部输入数据放在文本文件input3.dat中，其格式如下：
+每组的第一行有二个正整数(p，k)
+p表示字串的行数;
+k表示分为k个部分。
+接下来的p行，每行均有20个字符。
+再接下来有一个正整数s，表示字典中单词个数。(1<=s<=6)
+接下来的s行，每行均有一个单词。
+
+【输出文件】
+
+结果输出至屏幕，每行一个整数，分别对应每组测试数据的相应结果。
+
+【输入样例】
+
+1 3
+thisisabookyouareaoh
+4
+is
+a
+ok
+sab
+
+【输出样例】
+
+7
+
+【问题分析】
+
+刚看到这个题目觉得很迷茫，没入手点但是突然看到了闪亮的突破口：题目中说this包含this和is 但不包含th这也就是说在一个串内对于一个固定了起点的单词只能用一次，即使他还可以构成别的单词但他还是用一次。比如：串：thisa
+
+字典：this is th
+
+串中有this  is  th这三个单词，但是对于this 和 th 只用一次，也就是说枚举一下构成单词的起点，只要以该起点的串中包含可以构成一个以该起点开头的单词，那么就说明这个串中多包含一个单词。
+
+这样可一得出下面的结果：
+
+每举的起点                                   结论：
+
+t                                            至少包含1个
+
+h                                           至少包含1个
+
+i                                            至少包含2个
+
+s                                            至少包含2个
+
+a                                            至少包含2个
+
+    考虑到这里，就有点眉目了。
+
+    题目中要将串分K个部分也就是说从一个点截断后一个单词就未必可以构成了。比如上例要分3个部分合理的其中的一个部分至多有3个字母，这样this 这个单词就构不成了。
+
+    要是分5个部分，那就连一个单词都够不成了。
+
+    这样就需要对上面做个改动，上面的只控制了起点，而在题目中还需要限制终点，分完几个部分后，每部分终点不同可以构成的单词就不同了。
+
+这样就需要再枚举终点了。
+
+设计一个二维数组sum[i,j]统计从i到j的串中包含的单词的个数
+
+状态转移方程:
+
+ 
+
+           sum[i+1,j]+1            (s[i,j]中包含以S[i]开头的单词)
+
+sum[i,j]= 
+
+          sum[i+1,j]             (与上面相反)
+
+注：(1)这里枚举字符的起点的顺序是从尾到头的。
+
+(2)有人把上面这次也看做是一次动态规划，但我觉得更准确的说是递推。
+
+求出所有的SUM还差一步，就是不同的划分方法显然结果是不一样的，但是对于求解的问题我们可以这样把原问题分解成子问题：求把一个串分成K部分的最多单词个数可以看做是先把串的最后一部分分出来，在把前面一部分分解成K-1个部分，显然决策就是找到一种划分的方法是前面的K-1部分的单词+最后一部分的单词最多。
+
+显然这个问题满足最优化原理，那满足不满足无后效性呢？
+
+对于一个串分解出最后一部分在分解前面的那部分是更本就不会涉及分好的这部分，换句话说没次分解都回把串分解的更小，对于分解这个更小的传不会用到不属于这个小串的元素。这就满足无后效性。
+
+具体求解过程：
+
+设计一个状态opt[i,j]表示把从１到j的串分成i份可以得到最多的单词的个数。决策就是枚举分割点使当前这种分割方法可以获得最多的单词。
+
+状态转移方程：opt[I,j]=max(opt[i-1,t]+sum[t+1,j])       (i<t<j)
+
+边界条件：opt[1,i]=sum[1,i]                         (0<i<=L)
+
+时间复杂度：状态数Ｏ（Ｎ２）*决策数O（N）=O（N3）
+
+空间复杂度：O（N2）
+
+【源代码】
+
+program P3;
+
+const
+
+ fin='input3.dat';
+
+ fout='output3.dat';
+
+ maxn=210;
+
+var
+
+ s,ss:string;
+
+ opt,sum:array[0..maxn,0..maxn] of longint;
+
+ a:array[0..maxn] of string;
+
+ n,ii,P,k,L,nn:longint;
+
+procedure init;
+
+ var
+
+  i:longint;
+
+ begin
+
+  readln(p,k);
+
+  s:='';
+
+  for i:=1 to p do
+
+   begin
+
+    readln(ss);
+
+    s:=s+ss;
+
+   end;
+
+  readln(n);
+
+  for i:=1 to n do
+
+   readln(a[i]);
+
+ end;
+
+function find(i,j:longint):boolean;
+
+ var
+
+  t:longint;
+
+ begin
+
+  for t:=1 to n do
+
+   if pos(a[t],copy(s,i,j-i+1))=1 then exit(true);
+
+  find:=false;
+
+ end;
+
+function max(x,y:longint):longint;
+
+ begin
+
+  max:=y;
+
+  if x>y then max:=x;
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j,t:longint;
+
+ begin
+
+  L:=length(s);
+
+  for i:=L downto 1 do
+
+   for j:=i to L do
+
+    if find(i,j) then sum[i,j]:=sum[i+1,j]+1
+
+    else sum[i,j]:=sum[i+1,j];
+
+  fillchar(opt,sizeof(opt),0);
+
+  opt[1]:=sum[1];
+
+  for i:=2 to k do
+
+   for j:=i+1 to L do
+
+    for t:=i+1 to j-1 do
+
+     opt[i,j]:=max(opt[i,j],opt[i-1,t]+sum[t+1,j]);
+
+  writeln(opt[k,L]);
+
+ end;
+
+begin
+
+ assign(input,fin);
+
+ reset(input);
+
+ assign(output,fout);
+
+ rewrite(output);
+
+ init;
+
+ main;
+
+ close(input);
+
+ close(output);
+
+end.

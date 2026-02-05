@@ -1,0 +1,231 @@
+动态规划入门31
+ 分类：算法与数据结构 
+
+ 例题30
+
+A Binary Apple Tree 苹果二叉树
+
+来源：URAL P1018
+
+【问题描述】
+
+    Let's imagine how apple tree looks in binary computer world. You're right, it looks just like a binary tree, i.e. any biparous branch splits up to exactly two new branches. We will enumerate by natural numbers the root of binary apple tree, points of branching and the ends of twigs. This way we may distinguish different branches by their ending points. We will assume that root of tree always is numbered by 1 and all numbers used for enumerating are numbered in range from 1 to N, where N is the total number of all enumerated points. For instance in the picture below N is equal to 5. Here is an example of an enumerated tree with four branches:
+    设想苹果树很象二叉树，每一枝都是生出两个分支。我们用自然数来数这些枝和根那么必须区分不同的枝（结点），假定树根编号都是定为1，并且所用的自然数为1到N。N为所有根和枝的总数。例如下图的N为5，它是有4条枝的树。
+
+   2   5 
+    \ /  
+     3   4 
+      \ / 
+       1 
+As you may know it's not convenient to pick an apples from a tree when there are too much of branches. That's why some of them should be removed from a tree. But you are interested in removing branches in the way of minimal loss of apples. So your are given amounts of apples on a branches and amount of branches that should be preserved. Your task is to determine how many apples can remain on a tree after removing of excessive branches.
+    当一棵树太多枝条时，采摘苹果是不方便的，这就是为什么有些枝要剪掉的原因。现在我们关心的是，剪枝时，如何令到损失的苹果最少。给定苹果树上每条枝的苹果数目，及必须保留的树枝的数目。你的任务是计算剪枝后，能保留多少苹果。
+
+【输入文件】
+
+    First line of input contains two numbers: N and Q (1 <= Q <= N, 1 < N <= 100). N denotes the number of enumerated points in a tree. Q denotes amount of branches that should be preserved. Next N-1 lines contains descriptions of branches. Each description consists of a three integer numbers divided by spaces. The first two of them define branch by it's ending points. The third number defines the number of apples on this branch. You may assume that no branch contains more than 30000 apples.
+    首行为N，Q (1 <= Q <= N, 1 < N <= 100), N为一棵树上的根和枝的编号总数，Q为要保留的树枝的数目。以下N-1行为每条树枝的描述，用3个空格隔开的整数表示，前2个数为树枝两端的编号,第三个数为该枝上的苹果数。假设每条枝上的苹果数不超过3000个。
+
+【输出文件】
+
+    Output file should contain the only number ?amount of apples that can be preserved. And don't forget to preserve tree's root ;-)
+     输出能保留的苹果数。（剪枝时，千万不要连根拔起哦）
+
+【输入样例】
+
+5 2 
+1 3 1 
+1 4 10 
+2 3 20 
+3 5 20 
+【输出样例】
+
+21
+
+【提交链接】
+
+http://acm.timus.ru/problem.aspx?space=1&num=1018
+
+【问题分析】
+
+和上一道题一样，题目描述就很明确的说是关于树的题目，在加上是求最优值，和上一道题不同的是，这个题目边有值，并非点有值，还有一个不同点就是这个题需要建树。
+
+建树是要注意，给每个结点增加一个域：SUM用来存以它为根的树中的边的数目。
+
+其实树型动态规划是最好分析的，因为树这种数据结构本来就符合递归定义，这样的话子问题很好找，显然这个问题的子问题就是一棵树要保留M个枝分三种情况：
+
+剪掉左子树：让右子树保留M-1个枝可保留最多的苹果数+连接右子树的枝上的苹果数
+
+剪掉右子树：让左子树保留M-1个枝可保留最多的苹果数+连接左子树的枝上的苹果数
+
+都不剪掉：  让左子树保留i个枝，让右子树保留M-2-i个枝可保留最多的苹果数+连接右子树的枝上的苹果数+连接左子树的枝上的苹果数
+
+显然边界条件就是如果要保留的枝子数比当前的子树的枝多，或着一个树要保留0个枝子，则结果就是0。
+
+应为一颗树中根接点是对子树的完美总结，所以满足最优化原理。
+
+没次求解只和子树有关所以也满足无后效性，可见用动态规划做是正确的。
+
+设计一个状态opt[num,i]表示要让结点编号为i的树保留num个枝可得到的最优解。
+
+状态转移方程：
+
+opt[num,i]=max{opt[num-1,BT[i].L]+T[i,BT[i].L],opt[num-1,BT[i].r]+T[i,BT[i].r],opt[k,BT[i].L]+opt[num-2-k,BT[i].r]+T[i,BT[i].L]+T[i,BT[i].r]}  
+
+(0<=k<=n-2,BT:树，T：读入时记录的枝上的苹果数)；
+
+时间复杂度：状态数O(NM)*转移代价O(M)=O（NM2）
+
+【源代码】
+
+program P1018;
+
+const
+
+ fin='P1018.in';
+
+ fout='P1018.out';
+
+ maxn=110;
+
+type
+
+ treetype=record
+
+           l,r,sum:longint;
+
+          end;
+
+var
+
+ T,opt:array[0..maxn,0..maxn] of longint;
+
+ BT:array[0..maxn] of treetype;
+
+ vis:array[0..maxn] of boolean;
+
+ n,m,p:longint;
+
+procedure init;
+
+ var
+
+  i,j,k,w:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  fillchar(T,sizeof(T),0);
+
+  read(n,m);
+
+  for k:=1 to n-1 do
+
+   begin
+
+    read(i,j,w);
+
+    T[i,j]:=w;
+
+    T[j,i]:=w;
+
+   end;
+
+  close(input);
+
+  fillchar(vis,sizeof(vis),false);
+
+ end;
+
+Procedure creat_tree(i:longint);
+
+ var
+
+  j:longint;
+
+ begin
+
+  vis[i]:=true;
+
+  for j:=1 to n do
+
+   if (T[i,j]>0) and (not vis[j]) then
+
+    begin
+
+     creat_tree(j);
+
+     BT[i].L:=Bt[i].r;
+
+     Bt[i].r:=j;
+
+     inc(Bt[i].sum,BT[j].sum+1);
+
+    end;
+
+ end;
+
+Function max(x,y:longint):longint;
+
+ begin
+
+  max:=y;
+
+  if x>y then max:=x;
+
+ end;
+
+Function F(num,i:longint):longint;
+
+ var
+
+  k:longint;
+
+ begin
+
+  if opt[num,i]<0 then
+
+   begin
+
+    if (num>BT[i].sum) or (num=0) then opt[num,i]:=0
+
+    else begin
+
+          opt[num,i]:=F(num-1,BT[i].L)+T[i,BT[i].L];
+
+          opt[num,i]:=max(opt[num,i],F(num-1,BT[i].r)+T[i,BT[i].r]);
+
+          for k:=0 to num-2 do
+
+           opt[num,i]:=max(opt[num,i],F(k,BT[i].L)+F(num-2-k,BT[i].r)
+
++T[i,BT[i].L]+T[i,BT[i].r]);
+
+         end;
+
+   end;
+
+  F:=opt[num,i];
+
+ end;
+
+begin
+
+ init;
+
+ creat_tree(1);
+
+ fillchar(opt,sizeof(opt),200);
+
+ writeln(F(m,1));
+
+ close(output);
+
+end.
+

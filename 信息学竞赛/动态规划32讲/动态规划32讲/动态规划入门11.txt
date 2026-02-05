@@ -1,0 +1,230 @@
+动态规划入门11
+分类：算法与数据结构 
+
+例题10 
+
+金明的预算方案
+
+(budget.pas/c/cpp)
+
+来源：NOIP2006 第二题
+
+【问题描述】
+
+    金明今天很开心，家里购置的新房就要领钥匙了，新房里有一间金明自己专用的很宽敞的房间。更让他高兴的是，妈妈昨天对他说：“你的房间需要购买哪些物品，怎么布置，你说了算，只要不超过N元钱就行”。今天一早，金明就开始做预算了，他把想买的物品分为两类：主件与附件，附件是从属于某个主件的，下表就是一些主件与附件的例子：
+
+主件
+ 附件
+ 
+电脑
+ 打印机，扫描仪
+ 
+书柜
+ 图书
+ 
+书桌
+ 台灯，文具
+ 
+工作椅
+ 无
+ 
+
+    如果要买归类为附件的物品，必须先买该附件所属的主件。每个主件可以有0个、1个或2个附件。附件不再有从属于自己的附件。金明想买的东西很多，肯定会超过妈妈限定的N元。于是，他把每件物品规定了一个重要度，分为5等：用整数1~5表示，第5等最重要。他还从因特网上查到了每件物品的价格（都是10元的整数倍）。他希望在不超过N元（可以等于N元）的前提下，使每件物品的价格与重要度的乘积的总和最大。
+
+    设第j件物品的价格为v[j]，重要度为w[j]，共选中了k件物品，编号依次为j1，j2，……，jk，则所求的总和为：
+
+v[j1]*w[j1]+v[j2]*w[j2]+ …+v[jk]*w[jk]。（其中*为乘号）
+
+请你帮助金明设计一个满足要求的购物单。
+
+【输入文件】
+
+    输入文件budget.in 的第1行，为两个正整数，用一个空格隔开：
+
+N  m （其中N（<32000）表示总钱数，m（<60）为希望购买物品的个数。）
+
+    从第2行到第m+1行，第j行给出了编号为j-1的物品的基本数据，每行有3个非负整数： v  p  q
+
+（其中v表示该物品的价格（v<10000），p表示该物品的重要度（1~5），q表示该物品是主件还是附件。如果q=0，表示该物品为主件，如果q>0，表示该物品为附件，q是所属主件的编号）
+
+【输出文件】
+
+    输出文件budget.out只有一个正整数，为不超过总钱数的物品的价格与重要度乘积的总和的最大值（<200000）。
+
+【输入样例】
+
+1000 5
+
+800 2 0
+
+400 5 1
+
+300 5 1
+
+400 3 0
+
+500 2 0
+
+【输出样例】
+
+2200
+
+【问题分析】
+
+    这道题是一道典型的背包问题，比较麻烦的就是它还存在附件和主件之分。但这并不影响解题，由于附件最多两个，那么我们做一个对主，附件做个捆绑就行了。
+
+（1）          标准算法
+
+    因为这道题是典型的背包问题，显然标准算法就是动态规划。由于我们要对主，附件做捆绑。由于题目没有直接给出每个主件对应的附件，所以还需要做一个预处理：另开两个数组q1，q2来分别记录对应的第i个主件的附件。那么对与附件不需要处理。而主件的花费就有4种情况了。( 下面用W表示花费)
+
+W1=v[i]                               （只买主件）
+
+        W2=v[i]+v[q1[i]]                        （买主件和第一个附件）
+
+        W3=v[i]+v[q2[i]]                         （买主件和第二个附件）
+
+        W4=v[i]+v[q1[i]]+v[q2[i]]                 （买主件和那两个附件）
+
+        设计一个状态opt[i]表示花i元钱可买到的物品的价格个重要度最大值。边界条件是opt[0]=0但是为了区分花i元钱是否可买到物品我们把初始条件opt[0]:=1;这样opt[i]>0说明花i元可以买到物品。这样就不难设计出这个状态的转移方程来：
+
+opt[i]=max{opt[i],opt[i-wj]}       ((i-wj>0) and (opt[i-wj]>0)) (0<j<=4)
+
+显然题目的解就是opt[1]到opt[n]中的一个最大值。但在输出是要注意将解减1。
+
+注：价格是10是整数倍所以读入数据是可以使n=n div 10,wi=wi div 10
+
+【源代码】
+
+program budget;
+
+const
+
+ fin='budget.in';
+
+ fout='budget.out';
+
+ maxn=3200;
+
+ maxm=100;
+
+var
+
+ n,m,ans:longint;
+
+ v,p,q1,q2,q:array[0..maxm] of longint;
+
+ opt:array[0..maxn] of longint;
+
+procedure init;
+
+ var
+
+  i,x:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  readln(n,m);
+
+  n:=n div 10;
+
+  fillchar(q1,sizeof(q1),0);
+
+  fillchar(q2,sizeof(q2),0);
+
+  for i:=1 to m do
+
+   begin
+
+    readln(v[i],p[i],q[i]);
+
+     v[i]:=v[i] div 10;
+
+    q2[q[i]]:=q1[q[i]];
+
+    q1[q[i]]:=i;
+
+   end;
+
+  close(input);
+
+ end;
+
+function max(x,y:longint):longint;
+
+ begin
+
+  if x>y then exit(x);
+
+  exit(y);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),0);
+
+  opt[0]:=1;
+
+  for j:=1 to m do
+
+   for i:=n downto v[j] do
+
+    if q[j]=0 then
+
+     begin
+
+      if (i-v[j]>=0) and (opt[i-v[j]]>0) then
+
+       opt[i]:=max(opt[i],opt[i-v[j]]+v[j]*p[j]);
+
+      if (i-v[j]-v[q1[j]]>=0) and (opt[i-v[j]-v[q1[j]]]>0) then
+
+       opt[i]:=max(opt[i],opt[i-v[j]-v[q1[j]]]+v[j]*p[j]+v[q1[j]]*p[q1[j]]);
+
+      if (i-v[j]-v[q2[j]]>=0) and (opt[i-v[j]-v[q2[j]]]>0) then
+
+       opt[i]:=max(opt[i],opt[i-v[j]-v[q2[j]]]+v[j]*p[j]+v[q2[j]]*p[q2[j]]);
+
+if (i-v[j]-v[q1[j]]-v[q2[j]]>=0) and (opt[i-v[j]-v[q1[j]]-v[q2[j]]]>0) then
+
+opt[i]:=max(opt[i],opt[i-v[j]-v[q1[j]]-v[q2[j]]]+v[j]*p[j]+v[q1[j]]*p[q1[j]]+v[q2[j]]*p[q2[j]]);
+
+      ans:=max(ans,opt[i]);
+
+     end;
+
+ end;
+
+procedure print;
+
+ begin
+
+  writeln((ans-1)*10);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.

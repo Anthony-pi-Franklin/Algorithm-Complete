@@ -1,0 +1,19 @@
+
+
+var style      ='none';
+var url        ='http://www.ynjy.cn/Count/';
+var IntervalNum=10;
+var i=0;
+
+PowerEasyRef(0);
+
+document.write("<scr"+"ipt language=javascript src="+url+"counter.asp?style="+style+"&Referer="+escape(document.referrer)+"&Timezone="+escape((new Date()).getTimezoneOffset())+"&Width="+escape(screen.width)+"&Height="+escape(screen.height)+"&Color="+escape(screen.colorDepth)+"></sc"+"ript>");
+function PowerEasyRef(){
+    if(i <= IntervalNum){
+        var PowerEasyImg=new Image();
+        PowerEasyImg.src=url+'statonline.asp';
+        setTimeout('PowerEasyRef()',60000);
+    }
+    i+=1;
+}
+

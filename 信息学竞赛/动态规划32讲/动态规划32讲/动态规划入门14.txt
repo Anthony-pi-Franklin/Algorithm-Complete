@@ -1,0 +1,264 @@
+动态规划入门14
+分类：算法与数据结构 
+
+1.3其它问题
+
+一维动态规划最常见的就是前面总结的最长下降/非降子序列和0/1背包问题了，当然还有别的一写题。由于不是很常见所以没有固定的解题模式，到时候具体问题具体分析。下面在看一些例子：
+
+ 
+
+ 例题13 
+
+
+ 
+
+挖地雷问题
+
+                      (P3.pas/c/cpp)
+
+来源：NOIP1996（提高组）第三题（有改动）
+
+【问题描述】
+
+    在一个地图上有N个地窖（N<=20），每个地窖中埋有一定数量的地雷。同时，给出地窖之间的连接路径。如图3
+
+ 
+
+ 
+
+ 
+
+
+
+
+ 
+
+　　　　　　　　　　　　　　　　图3
+
+当地窖及其连接的数据给出之后，某人可以从任一处开始挖地雷，然后可以沿着指出的连接往下挖（仅能选择一条路径），当无连接时挖地雷工作结束。设计一个挖地雷的方案，使某人能挖到最多的地雷。
+
+【输入文件】
+
+   N：                       （表示地窖的个数）
+
+　Ｗ1，W2，W3，……WN  （表示每个地窖中埋藏的地雷数量）
+
+   A12…………… .     A1N      地窖之间连接路径（其中Ａij=1表示地窖i,j
+
+         A23…………..A2N        之间是否有通路：通Aij=1,不通Aij==0）
+
+   
+
+             ……..
+
+              AN-1  AN
+
+【输出文件】
+
+    K1--K2--……….KV                  （挖地雷的顺序）
+
+    MAX                           （挖地雷的数量）
+
+【输入样例】
+
+ 5
+
+10，8，4，7，6
+
+1  1  1  0
+
+   0  0  0
+
+      1  1
+
+         1
+
+【输出样例】
+
+ 1 -> 3 -> 4 -> 5
+
+ max=27
+
+【Hint】
+
+题目中的路径是有向的且无环路（这是我做的改动原题中没有要求）。
+
+【问题分析】
+
+看到题目的第一影响是贪心——以一点出发找与他连接的地窖中地雷数最多的一个。
+
+但很容易想到反例：
+
+5
+
+1 2 1 1 100
+
+1 1 0 0
+
+  0 1 0
+
+    0 1
+
+      0
+
+按照贪心答案是3，但实际上答案是101。
+
+于是就不得不放弃贪心的想法。
+
+但是贪心给了我们启示：从一个顶点出发要选择向一个与他相连且以该点出发可以挖到较多雷的点走。（有点拗口）
+
+另一种解释：如果一个顶点连同N个分量，显然要则一个较大的就是问题的解答，这个定义是满足最优化原理的。
+
+那它满足无后效性么？
+
+因为图是有向的，所以以与该顶点相连的点在往下走的路线中不包括该点。也就是说图是一个AOV网（有向无环图）。
+
+既然满足最优化原理，且无后效性，我们就可以用动态规划解了。
+
+这个问题的阶段就是拓扑序列，但由于输入是倒三角形，所以我们没必要求拓扑序列，只要从N到着求解就可以了。
+
+设计状态opt[i]表示以i点出发可以挖到最多的雷的个数。
+
+状态转移方程：opt[i]=max{opt[j]}+w[i]   (g[i,j]=1)
+
+(g存图，w[i]存第i个地窖中的雷的个数)。
+
+时间复杂度：
+
+状态数O(n)*转移代价O(n)=O(n2)
+
+    这个题目还要求出路径，可以用一个辅助数组path来记录，path[i]表示从第i个出发走到的下一个点的编号。求解完只要按path记录的路径输出即可。
+
+【源代码】
+
+program P3;
+
+const
+
+ fin='P3.in';
+
+ fout='P3.out';
+
+ maxn=200;
+
+var
+
+ g:array[0..maxn,0..maxn] of longint;
+
+ n,ans:longint;
+
+ w,opt,path:array[0..maxn] of longint;
+
+procedure init;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  assign(input,fin);
+
+  reset(input);
+
+  assign(output,fout);
+
+  rewrite(output);
+
+  read(n);
+
+  fillchar(g,sizeof(g),0);
+
+  for i:=1 to n do
+
+   read(w[i]);
+
+  for i:=1 to n do
+
+   for j:=i+1 to n do
+
+    read(g[i,j]);
+
+  close(input);
+
+ end;
+
+procedure main;
+
+ var
+
+  i,j:longint;
+
+ begin
+
+  fillchar(opt,sizeof(opt),0);
+
+  fillchar(path,sizeof(path),0);
+
+  for i:=n downto 1 do
+
+   begin
+
+    for j:=i+1 to n do
+
+     if (g[i,j]=1)  and (opt[j]>opt[i]) then
+
+      begin
+
+       opt[i]:=opt[j];
+
+       path[i]:=j;
+
+      end;
+
+    inc(opt[i],w[i]);
+
+   end;
+
+  ans:=1;
+
+  for i:=2 to n do
+
+   if opt[i]>opt[ans] then  ans:=i;
+
+ end;
+
+procedure print;
+
+ var
+
+  i:longint;
+
+ begin
+
+  write(ans);
+
+  i:=path[ans];
+
+  while i>0 do
+
+   begin
+
+    write('-->',i);
+
+    i:=path[i];
+
+   end;
+
+  writeln;
+
+  writeln('max=',opt[ans]);
+
+  close(output);
+
+ end;
+
+begin
+
+ init;
+
+ main;
+
+ print;
+
+end.
