@@ -13,7 +13,7 @@
 
 - [Introduction to Algorithms](https://mitpress.mit.edu/9780262533058/introduction-to-algorithms/)
 - [Algorithms, 4th Edition](https://algs4.cs.princeton.edu/home/)
-- [Mathematics in Programming(同构：编程中的数学)](https://link.springer.com/book/10.1007/978-981-97-2432-1)
+- [Mathematics in Programming (同构：编程中的数学)](https://link.springer.com/book/10.1007/978-981-97-2432-1)
 
 #### 论文
 
@@ -43,6 +43,7 @@
 
 ## 综合平台
 
+- [luogu](https://www.luogu.com.cn/)
 - [ACwin](https://www.acwing.com/about/)
 - [LeetCode](https://leetcode.com/)
 - [Codeforces](https://codeforces.com/)
