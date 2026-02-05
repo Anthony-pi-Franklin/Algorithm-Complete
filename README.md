@@ -12,13 +12,15 @@
 
 #### 书籍
 
-- [Introduction to Algorithms, 4th Edition](https://mitpress.mit.edu/9780262533058/introduction-to-algorithms/)
-- [Algorithms, 4th Edition](https://algs4.cs.princeton.edu/home/)
-- [Mathematics in Programming (同构：编程中的数学)](https://link.springer.com/book/10.1007/978-981-97-2432-1)
+- [Introduction to Algorithms, 4th Edition](https://mitpress.mit.edu/9780262533058/introduction-to-algorithms/) 典中典
+- [Algorithms, 4th Edition](https://algs4.cs.princeton.edu/home/) 这也是经典
+- [Mathematics in Programming (同构：编程中的数学)](https://link.springer.com/book/10.1007/978-981-97-2432-1) 大佬评价说有《几何原本》的味道，喜欢Haskell的有福了
+- [Dr. Dobb’s Essential Books on Algorithms & Data Structures](https://archive.org/details/DDJALGCD) 《编程珠玑》中对其进行了推荐，是复杂的算法和数据结构的课程包
 
 #### 论文
 
-- [Correctness of Dijkstra’s algorithm](https://community.wvu.edu/~krsubramani/courses/fa05/gaoa/qen/dijk.pdf)
+- [Correctness of Dijkstra’s algorithm](https://community.wvu.edu/~krsubramani/courses/fa05/gaoa/qen/dijk.pdf) 迪杰斯特拉算法为什么是对的
+- [Universal Optimality of Dijkstra Via Beyond-Worst-Case Heaps](https://ieeexplore.ieee.org/document/10756107) 迪杰斯特拉算法确实牛逼
 
 ### 在线资源
 
@@ -27,14 +29,14 @@
 - [ACM-ICPC-Preparation](https://github.com/BedirT/ACM-ICPC-Preparation)
 - [Shanghai Tech University](https://github.com/i-TechX/iTechX/tree/file-base/courses/CS101/CS101.01_Fall_2022/Lecture%20Slides%20%E6%95%99%E5%AD%A6%E8%AF%BE%E4%BB%B6)
 - [Elementary Functional Algorithms（算法新解）](https://github.com/liuxinyu95/AlgoXY)
-- 
+- [StoneValley](https://github.com/coshcage/StoneValley) 个人维护的C语言通用算法库
 
 #### WiKi/Note
 
-- [OIwiki](https://oi-wiki.org/)
-- [labuladong](https://labuladong.online/zh/algo/home/)
+- [OI-wiki](https://oi-wiki.org/) 伟大无需多言
+- [labuladong](https://labuladong.online/zh/algo/home/) 这也是大佬
 - [hello-algo](https://www.hello-algo.com/chapter_hello_algo/)
-- [Dictionary of Algorithms and Data Structures](https://xlinux.nist.gov/dads/)
+- [Dictionary of Algorithms and Data Structures](https://xlinux.nist.gov/dads/) NIST维护的算法和数据结构词典
 
 #### 神奇网站
 
@@ -42,8 +44,8 @@
 
 #### 课程
 
-- [Algorithm Analysis](https://aofa.cs.princeton.edu/home/)
-- [Advanced Topics In Statistical Machine Learning](https://www.robots.ox.ac.uk/~twgr/teaching/)
+- [Algorithm Analysis](https://aofa.cs.princeton.edu/home/) 算法分析这一块
+- [Advanced Topics In Statistical Machine Learning](https://www.robots.ox.ac.uk/~twgr/teaching/) 机器学习这一块
 - [Linear and Semidefinite Programming (Advanced Algorithms)](https://www.cs.cmu.edu/afs/cs.cmu.edu/academic/class/15859-f11/www/)
 
 ## 综合平台
