@@ -12,7 +12,7 @@
 
 #### 书籍
 
-- [Introduction to Algorithms](https://mitpress.mit.edu/9780262533058/introduction-to-algorithms/)
+- [Introduction to Algorithms, 4th Edition](https://mitpress.mit.edu/9780262533058/introduction-to-algorithms/)
 - [Algorithms, 4th Edition](https://algs4.cs.princeton.edu/home/)
 - [Mathematics in Programming (同构：编程中的数学)](https://link.springer.com/book/10.1007/978-981-97-2432-1)
 
@@ -34,6 +34,7 @@
 - [OIwiki](https://oi-wiki.org/)
 - [labuladong](https://labuladong.online/zh/algo/home/)
 - [hello-algo](https://www.hello-algo.com/chapter_hello_algo/)
+- [Dictionary of Algorithms and Data Structures](https://xlinux.nist.gov/dads/)
 
 #### 神奇网站
 
