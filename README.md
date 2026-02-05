@@ -4,6 +4,7 @@
 
 ## 目录
 
+...
 
 ## 理论材料
 
@@ -36,14 +37,17 @@
 
 #### 神奇网站
 
-- [Algorithm Analysis](https://aofa.cs.princeton.edu/home/)
 - [Bit HACK](https://graphics.stanford.edu/~seander/bithacks.html)
 
-#### 视频课程
+#### 课程
+
+- [Algorithm Analysis](https://aofa.cs.princeton.edu/home/)
+- [Advanced Topics In Statistical Machine Learning](https://www.robots.ox.ac.uk/~twgr/teaching/)
+- [Linear and Semidefinite Programming (Advanced Algorithms)](https://www.cs.cmu.edu/afs/cs.cmu.edu/academic/class/15859-f11/www/)
 
 ## 综合平台
 
-- [luogu](https://www.luogu.com.cn/)
+- [Luogu](https://www.luogu.com.cn/)
 - [ACwin](https://www.acwing.com/about/)
 - [LeetCode](https://leetcode.com/)
 - [Codeforces](https://codeforces.com/)
