@@ -27,6 +27,7 @@
 
 - [Correctness of Dijkstra’s algorithm](https://community.wvu.edu/~krsubramani/courses/fa05/gaoa/qen/dijk.pdf) 迪杰斯特拉算法为什么是对的
 - [Universal Optimality of Dijkstra Via Beyond-Worst-Case Heaps](https://ieeexplore.ieee.org/document/10756107) 迪杰斯特拉算法确实牛逼
+- [Optimal Bounds for Open Addressing Without Reordering](https://ieeexplore.ieee.org/document/10756091) 哈希表方面，据说是推翻了图灵奖得主姚期智40年前提出的猜想
 
 ### 在线资源
 
